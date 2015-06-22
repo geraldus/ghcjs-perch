@@ -47,7 +47,8 @@ library
   -- exposed-modules:     
   
   -- Modules included in this library but not exported.
-  other-modules: Internal.FFI
+  other-modules: Internal.API
+                 Internal.FFI
                  Internal.Type
 
   -- LANGUAGE extensions used by modules in this package.
