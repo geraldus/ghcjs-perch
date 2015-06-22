@@ -47,17 +47,19 @@ library
   -- exposed-modules:     
   
   -- Modules included in this library but not exported.
-  -- other-modules:       
-  
+  other-modules: Internal.Type
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.7 && <4.8
-  
+  build-depends:       base         >= 4.7     && < 4.8,
+                       transformers >= 0.4.3.0 && < 0.5,
+                       ghcjs-base
+
   -- Directories containing source files.
   hs-source-dirs:      src
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
 
+  ghc-options: -Wall -fno-warn-unused-do-bind
