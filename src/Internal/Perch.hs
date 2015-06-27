@@ -4,14 +4,6 @@
 {-# LANGUAGE RankNTypes           #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-
-{- # LANGUAGE CPP, ForeignFunctionInterface,JavaScriptFFI, TypeSynonymInstances,
- OverloadedStrings, , UndecidableInstances
-, OverlappingInstances # -}
-
--- | Monad and Monoid instances for a builder that hang DOM elements from the
--- current parent element. It uses Haste.DOM from the haste-compiler.
-
 module Internal.Perch where
 
 import           Internal.API
@@ -132,7 +124,7 @@ addEvent be event action = Perch $ \e ->
      onEvent e' (eventName event) action
      return e'
 
--- * leaf DOM nodes
+-- * Leaf DOM Nodes
 area, base, br, col, embed, hr, img, input, keygen, link, menuitem :: Perch
 meta, param, source, track, wbr :: Perch
 
@@ -153,7 +145,7 @@ source   = nelem "source"
 track    = nelem "track"
 wbr      = nelem "wbr"
 
--- * Parent DOM nodes
+-- * Parent DOM Nodes
 
 a, abbr, address, article, aside, audio, b, bdo, blockquote, body, button,
   canvas, caption, center, cite, code, colgroup, command, datalist, dd, del,
@@ -258,14 +250,14 @@ video cont      = nelem "video" `child` cont
 ctag :: (ToJSString a, ToElem b) => a -> b -> Perch
 ctag tag cont = nelem tag `child` cont
 
--- * HTML4 support
+-- * HTML4 Support
 center cont = nelem "center" `child` cont
 
 noHtml :: Perch
 noHtml = mempty
 
 
--- * DOM attributes
+-- * DOM Attributes
 
 atr ::(ToJSString n, ToJSString v) => n -> v -> Attribute
 atr n v = (toJSString n, toJSString v)
@@ -280,7 +272,7 @@ style  = atr "style"
 width  = atr "width"
 
 
--- * DOM Tree navigation
+-- * DOM Tree Navigation
 
 -- | Return the current node.
 this :: Perch
