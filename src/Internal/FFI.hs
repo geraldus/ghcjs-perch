@@ -2,9 +2,7 @@ module Internal.FFI where
 
 import           Internal.Type
 
-import           GHCJS.Types             (JSObject, JSRef, JSString)
-
-import           Control.Concurrent.MVar (MVar)
+import           GHCJS.Types             (JSFun, JSRef, JSString)
 --------------------------------------------------------------------------------
 
 
@@ -54,6 +52,6 @@ foreign import javascript unsafe "document.querySelectorAll($1)"
 
 
 foreign import javascript unsafe
-  "$1.addEventListener($2, h$makeMVarListener($3, false, false, false));"
-  js_addMVarListener :: Elem -> JSString -> JSObject (MVar (JSRef a)) -> IO ()
+  "$1.addEventListener($2, $3);"
+  js_addEventListener :: Elem -> JSString -> JSFun (JSRef a -> IO ()) -> IO ()
 --------------------------------------------------------------------------------

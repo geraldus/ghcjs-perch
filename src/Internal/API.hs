@@ -3,12 +3,9 @@ module Internal.API where
 import           Internal.FFI
 import           Internal.Type
 
-import           GHCJS.Foreign           (ToJSString (..), fromArray, mvarRef)
-import           GHCJS.Types             (JSRef)
-
-import           Control.Concurrent      (forkIO)
-import           Control.Concurrent.MVar (MVar, newEmptyMVar, takeMVar)
-import           Control.Monad           (forever)
+import           GHCJS.Foreign (ForeignRetention (..), ToJSString (..),
+                                asyncCallback1, fromArray, release)
+import           GHCJS.Types   (JSRef)
 --------------------------------------------------------------------------------
 
 
@@ -62,10 +59,9 @@ queryAll query =
   do res <- js_querySelectorAll (toJSString query)
      fromArray res
 
-onEvent :: NamedEvent a => Elem -> a -> (JSRef b -> IO()) -> IO ()
+onEvent :: NamedEvent a => Elem -> a -> (JSRef b -> IO()) -> IO (IO ())
 onEvent el et hnd = do
-  mv <- newEmptyMVar :: IO (MVar (JSRef a))
-  forkIO (waitEvent mv)
-  js_addMVarListener el (toJSString (eventName et)) (mvarRef mv)
-  where waitEvent m = forever (takeMVar m >>= hnd)
+  callback <- asyncCallback1 AlwaysRetain hnd
+  js_addEventListener el (toJSString (eventName et)) callback
+  return (release callback)
 --------------------------------------------------------------------------------
