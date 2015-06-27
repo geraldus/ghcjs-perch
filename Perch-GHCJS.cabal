@@ -6,7 +6,7 @@ name:                ghcjs-perch
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.0.1.0
+version:             0.0.1.1
 
 -- A short (one-line) description of the package.
 synopsis:            GHCJS version of Perch library.
