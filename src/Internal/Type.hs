@@ -35,23 +35,23 @@ class NamedEvent a where
   eventName :: a -> String
 
 
-data JsEvent = BlurEvent
-             | ChangeEvent
-             | ClickEvent
-             | DblClickEvent
-             | FocusEvent
-             | KeyPressEvent
-             | KeyUpEvent
-             | KeyDownEvent
-             | LoadEvent
-             | MouseDownEvent
-             | MouseMoveEvent
-             | MouseOutEvent
-             | MouseOverEvent
-             | MouseUpEvent
-             | SubmitEvent
-             | UnloadEvent
-             | WheelEvent
+data JsEvent = Blur
+             | Change
+             | Click
+             | DblClick
+             | Focus
+             | KeyPress
+             | KeyUp
+             | KeyDown
+             | Load
+             | MouseDown
+             | MouseMove
+             | MouseOut
+             | MouseOver
+             | MouseUp
+             | Submit
+             | Unload
+             | Wheel
 
 
 instance NamedEvent String where
@@ -64,21 +64,21 @@ instance NamedEvent JSString where
   eventName x = eventName ((fromJSString x) :: String)
 
 instance Show JsEvent where
-  show BlurEvent      = "blur"
-  show ChangeEvent    = "change"
-  show ClickEvent     = "click"
-  show DblClickEvent  = "dblclick"
-  show FocusEvent     = "focus"
-  show KeyDownEvent   = "keydown"
-  show KeyPressEvent  = "keypress"
-  show KeyUpEvent     = "keyup"
-  show LoadEvent      = "load"
-  show MouseDownEvent = "mousedown"
-  show MouseMoveEvent = "mousemove"
-  show MouseOutEvent  = "mouseout"
-  show MouseOverEvent = "mouseover"
-  show MouseUpEvent   = "mouseup"
-  show SubmitEvent    = "submit"
-  show UnloadEvent    = "unload"
-  show WheelEvent     = "wheel"
+  show Blur      = "blur"
+  show Change    = "change"
+  show Click     = "click"
+  show DblClick  = "dblclick"
+  show Focus     = "focus"
+  show KeyDown   = "keydown"
+  show KeyPress  = "keypress"
+  show KeyUp     = "keyup"
+  show Load      = "load"
+  show MouseDown = "mousedown"
+  show MouseMove = "mousemove"
+  show MouseOut  = "mouseout"
+  show MouseOver = "mouseover"
+  show MouseUp   = "mouseup"
+  show Submit    = "submit"
+  show Unload    = "unload"
+  show Wheel     = "wheel"
 --------------------------------------------------------------------------------
