@@ -1,33 +1,23 @@
 name:                ghcjs-perch
 
--- The package version.  See the Haskell package versioning policy (PVP)
--- for standards guiding when and how versions should be incremented.
--- http://www.haskell.org/haskellwiki/Package_versioning_policy
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
 version:             0.0.1.1
 
--- A short (one-line) description of the package.
 synopsis:            GHCJS version of Perch library.
 
 -- A longer description of the package.
 -- description:
 
--- The license under which the package is released.
 license:             GPL-3
 
--- The file containing the license text.
 license-file:        LICENSE
 
--- The package author(s).
-author:              Arthur Fayzrakhmanov (Артур Файзрахманов)
+author:              Arthur S. Fayzrakhmanov
 
--- An email address to which users can send suggestions, bug reports, and
--- patches.
 maintainer:          heraldhoi@gmail.com
 
--- A copyright notice.
 copyright:           Copyright © 2015 Arthut S. Fayzrakhmanov. All rights reserved.
 
 category:            Web
@@ -60,10 +50,8 @@ library
                        transformers >= 0.4.3.0 && < 0.5,
                        ghcjs-base
 
-  -- Directories containing source files.
   hs-source-dirs:      src
 
-  -- Base language which the package is written in.
   default-language:    Haskell2010
 
   ghc-options: -Wall -fno-warn-unused-do-bind -O
