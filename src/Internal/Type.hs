@@ -13,7 +13,7 @@ module Internal.Type
 
 import           Data.JSString
 import           GHCJS.Foreign (isNull, isUndefined)
-import           GHCJS.Marshal (FromJSVal (..))
+import           GHCJS.Marshal (FromJSVal (..), ToJSVal(..))
 import           GHCJS.Types   (JSVal)
 --------------------------------------------------------------------------------
 
@@ -55,6 +55,10 @@ instance FromJSVal Elem where
   fromJSVal v = return (if isUndefined v || isNull v
                            then Nothing
                            else Just (Elem v))
+
+instance ToJSVal Elem where
+  toJSVal (Elem val) = return val
+
 
 instance NamedEvent String where
   eventName = Prelude.id
