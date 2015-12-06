@@ -3,7 +3,7 @@ name:                ghcjs-perch
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.0.1.1
+version:             0.1.0.0
 
 synopsis:            GHCJS version of Perch library.
 
@@ -48,6 +48,7 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base         >= 4.7     && < 4.9,
                        transformers >= 0.4.3.0 && < 0.5,
+                       text         >= 1.2.1.1 && < 1.3,
                        ghcjs-base
 
   hs-source-dirs:      src

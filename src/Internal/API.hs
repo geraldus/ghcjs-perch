@@ -3,9 +3,12 @@ module Internal.API where
 import           Internal.FFI
 import           Internal.Type
 
-import           GHCJS.Foreign (ForeignRetention (..), ToJSString (..),
-                                asyncCallback1, fromArray, release)
-import           GHCJS.Types   (JSRef)
+import           Data.JSString          (pack)
+import           Data.JSString.Text     (textToJSString)
+import           Data.Text              (Text)
+import           GHCJS.Foreign.Callback (asyncCallback1, releaseCallback)
+import           GHCJS.Marshal          (FromJSVal (..))
+import           GHCJS.Types            (JSVal)
 --------------------------------------------------------------------------------
 
 
@@ -16,11 +19,11 @@ getDocument = js_document
 getBody :: IO Elem
 getBody = js_documentBody
 
-newElem :: ToJSString a => a -> IO Elem
-newElem = js_documentCreateNode . toJSString
+newElem :: String -> IO Elem
+newElem = js_documentCreateNode . pack
 
-newTextElem :: ToJSString a => a -> IO Elem
-newTextElem = js_createTextNode . toJSString
+newTextElem :: Text -> IO Elem
+newTextElem = js_createTextNode . textToJSString
 
 
 parent :: Elem -> IO Elem
@@ -47,21 +50,21 @@ replace o n =
      js_replaceChild par o n
      return n
 
-setAttr :: ToJSString a => Elem -> PropId -> a -> IO ()
-setAttr e p = js_setAttribute e p . toJSString
+setAttr :: Elem -> PropId -> Text -> IO ()
+setAttr e p = js_setAttribute e p . textToJSString
 
-inner :: ToJSString a => Elem -> a -> IO ()
-inner e = js_innerHtml e . toJSString
+inner :: Elem -> Text -> IO ()
+inner e = js_innerHtml e . textToJSString
 
 
-queryAll :: ToJSString a => a -> IO [Elem]
+queryAll :: Text -> IO [Elem]
 queryAll query =
-  do res <- js_querySelectorAll (toJSString query)
-     fromArray res
+  do res <- js_querySelectorAll (textToJSString query)
+     fromJSValUncheckedListOf res
 
-onEvent :: NamedEvent a => Elem -> a -> (JSRef b -> IO()) -> IO (IO ())
+onEvent :: NamedEvent a => Elem -> a -> (JSVal -> IO()) -> IO (IO ())
 onEvent el et hnd = do
-  callback <- asyncCallback1 AlwaysRetain hnd
-  js_addEventListener el (toJSString (eventName et)) callback
-  return (release callback)
+  callback <- asyncCallback1 hnd
+  js_addEventListener el (pack (eventName et)) callback
+  return (releaseCallback callback)
 --------------------------------------------------------------------------------

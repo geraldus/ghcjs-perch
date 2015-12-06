@@ -2,7 +2,9 @@ module Internal.FFI where
 
 import           Internal.Type
 
-import           GHCJS.Types             (JSFun, JSRef, JSString)
+import           Data.JSString           (JSString)
+import           GHCJS.Foreign.Callback  (Callback)
+import           GHCJS.Types             (JSVal)
 --------------------------------------------------------------------------------
 
 
@@ -48,10 +50,10 @@ foreign import javascript unsafe "$1.innerHTML = $2"
 
 
 foreign import javascript unsafe "document.querySelectorAll($1)"
-  js_querySelectorAll :: JSString -> IO ElemArray
+  js_querySelectorAll :: JSString -> IO JSVal
 
 
 foreign import javascript unsafe
   "$1.addEventListener($2, $3);"
-  js_addEventListener :: Elem -> JSString -> JSFun (JSRef a -> IO ()) -> IO ()
+  js_addEventListener :: Elem -> JSString -> Callback (JSVal -> IO ()) -> IO ()
 --------------------------------------------------------------------------------

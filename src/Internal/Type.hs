@@ -4,7 +4,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Internal.Type
   ( Elem
-  , ElemArray
   , PropId
   , PropID
   , Attribute
@@ -12,17 +11,15 @@ module Internal.Type
   , JsEvent (..)
   ) where
 
-import           GHCJS.Foreign (fromJSString)
-import           GHCJS.Types   (JSArray, JSRef, JSString)
+import           Data.JSString
+import           GHCJS.Foreign (isNull, isUndefined)
+import           GHCJS.Marshal (FromJSVal (..))
+import           GHCJS.Types   (JSVal)
 --------------------------------------------------------------------------------
 
 
 --------------------------------------------------------------------------------
-type Elem = JSRef Element_
-
-type ElemArray = JSArray Element_
-
-data Element_ = Element_
+newtype Elem = Elem JSVal
 
 type PropId = JSString
 
@@ -54,6 +51,11 @@ data JsEvent = Blur
              | Wheel
 
 
+instance FromJSVal Elem where
+  fromJSVal v = return (if isUndefined v || isNull v
+                           then Nothing
+                           else Just (Elem v))
+
 instance NamedEvent String where
   eventName = Prelude.id
 
@@ -61,7 +63,7 @@ instance Show a => NamedEvent a where
   eventName = eventName . show
 
 instance NamedEvent JSString where
-  eventName x = eventName ((fromJSString x) :: String)
+  eventName x = eventName ((unpack x) :: String)
 
 instance Show JsEvent where
   show Blur      = "blur"

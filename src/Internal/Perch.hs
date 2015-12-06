@@ -9,13 +9,14 @@ module Internal.Perch where
 import           Internal.API
 import           Internal.Type
 
-import           GHCJS.Foreign          (ToJSString (..))
-import           GHCJS.Types            (JSRef, JSString)
 
-import           Control.Applicative    (Applicative)
+import           Data.JSString          (JSString, pack)
+import           GHCJS.Types            (JSVal)
+
 import           Control.Monad.IO.Class (MonadIO (..))
-import           Data.Monoid            (Monoid (..))
+import           Data.JSString.Text     (textFromJSString, textToJSString)
 import           Data.String            (IsString (..))
+import           Data.Text              (Text)
 import           Data.Typeable          (Typeable)
 import           Unsafe.Coerce          (unsafeCoerce)
 --------------------------------------------------------------------------------
@@ -65,20 +66,20 @@ instance IsString Perch where
   fromString = toElem
 
 instance Attributable Perch where
- (!) = attr
+ (!) pe (aname, aval) = pe `attr` (aname, textFromJSString aval)
 
 instance ToElem a => Attributable (a -> Perch) where
- (!) pe atrib = \e -> pe e `attr` atrib
+ (!) pe (aname, aval) = \e -> pe e `attr` (aname, textFromJSString aval)
 
 
 instance ToElem JSString where
   toElem s = Perch $ \e ->
-    do e' <- newTextElem s
+    do e' <- newTextElem (textFromJSString s)
        addChild e' e
        return e'
 
 instance ToElem String where
-  toElem = toElem . toJSString
+  toElem = toElem . pack
 
 instance Show a => ToElem a where
   toElem = toElem . show
@@ -86,13 +87,13 @@ instance Show a => ToElem a where
 
 
 --------------------------------------------------------------------------------
-attr :: forall a b. ToJSString b => PerchM a -> (PropId, b) -> PerchM a
+attr :: forall a. PerchM a -> (PropId, Text) -> PerchM a
 attr tag (n, v) = Perch $ \e ->
   do tag' <- build tag e
      setAttr tag' n v
      return tag'
 
-nelem :: ToJSString a => a -> Perch
+nelem :: String -> Perch
 nelem s = Perch $ \e ->
   do e' <- newElem s
      addChild e' e
@@ -109,7 +110,7 @@ child me ch = Perch $ \e' ->
      build (toElem ch) e
      return e
 
-setHtml :: ToJSString a => Perch -> a -> Perch
+setHtml :: Perch -> Text -> Perch
 setHtml me text = Perch $ \e' ->
   do e <- build me e'
      inner e text
@@ -118,7 +119,7 @@ setHtml me text = Perch $ \e' ->
 -- | Build an element and add an event handler to it.
 -- Event handler should be an IO action taking one argument of type @JSRef a@,
 -- that is an actual event object catched by JavsScript.
-addEvent :: (NamedEvent a) => Perch -> a -> (JSRef a -> IO ()) -> Perch
+addEvent :: (NamedEvent a) => Perch -> a -> (JSVal -> IO ()) -> Perch
 addEvent be event action = Perch $ \e ->
   do e' <- build be e
      onEvent e' (eventName event) action
@@ -247,7 +248,7 @@ ul cont         = nelem "ul" `child` cont
 var cont        = nelem "var" `child` cont
 video cont      = nelem "video" `child` cont
 
-ctag :: (ToJSString a, ToElem b) => a -> b -> Perch
+ctag :: (ToElem b) => String -> b -> Perch
 ctag tag cont = nelem tag `child` cont
 
 -- * HTML4 Support
@@ -259,10 +260,10 @@ noHtml = mempty
 
 -- * DOM Attributes
 
-atr ::(ToJSString n, ToJSString v) => n -> v -> Attribute
-atr n v = (toJSString n, toJSString v)
+atr :: String -> Text -> Attribute
+atr n v = (pack n, textToJSString v)
 
-id, height, href, src, style, width :: ToJSString a => a -> Attribute
+id, height, href, src, style, width :: Text -> Attribute
 
 id     = atr "id"
 height = atr "height"
@@ -310,14 +311,14 @@ outer olde newe = Perch $ \e ->
 -- | JQuery-like DOM manipulation.  It applies the Perch DOM manipulation for
 -- each found element using @querySelectorAll@ function and return parent
 -- element as result.
-forElems :: ToJSString a => a -> Perch -> Perch
+forElems :: Text -> Perch -> Perch
 forElems query action = Perch $ \e ->
   do els <- queryAll query
      mapM_ (build action) els
      return e
 
 -- | A bit more declarative synmonym of 'forElems'.
-withElems :: ToJSString a => a -> Perch -> Perch
+withElems :: Text -> Perch -> Perch
 withElems = forElems
 
 -- | Like forElems, but discards final result.
@@ -330,16 +331,16 @@ withElems = forElems
 --      div ! atr "class" "modify" $ "click"
 --      div "not changed"
 --      div ! atr "class" "modify" $ "here"
---      addEvent this OnClick $ \_ _ -> do
+--      addEvent this Click $ \_ _ -> do
 --        forElems' ".modify" $
 --          this ! style "color:red"
 -- @
-forElems_ :: ToJSString a => a -> Perch -> IO ()
+forElems_ :: Text -> Perch -> IO ()
 forElems_ els doIt =
   do build (forElems els doIt) undefined
      return ()
 
-forElems', withElems_, withElems' :: ToJSString a => a -> Perch -> IO ()
+forElems', withElems_, withElems' :: Text -> Perch -> IO ()
 forElems' = forElems_
 withElems_ = forElems_
 withElems' = forElems_
