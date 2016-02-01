@@ -3,14 +3,14 @@ name:                ghcjs-perch
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.1.0.1
+version:             0.1.0.2
 
 synopsis:            GHCJS version of Perch library.
 
 -- A longer description of the package.
 -- description:
 
-license:             GPL-3
+license:             MIT
 
 license-file:        LICENSE
 
