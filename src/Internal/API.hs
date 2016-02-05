@@ -3,9 +3,9 @@ module Internal.API where
 import           Internal.FFI
 import           Internal.Type
 
-import           Data.JSString          (pack)
-import           Data.JSString.Text     (textToJSString)
-import           Data.Text              (Text)
+import           Data.JSString
+--import           Data.JSString.Text     (textToJSString)
+--import           Data.Text              (Text)
 import           GHCJS.Foreign.Callback (asyncCallback1, releaseCallback)
 import           GHCJS.Marshal          (FromJSVal (..))
 import           GHCJS.Types            (JSVal)
@@ -19,11 +19,11 @@ getDocument = js_document
 getBody :: IO Elem
 getBody = js_documentBody
 
-newElem :: String -> IO Elem
-newElem = js_documentCreateNode . pack
+newElem :: JSString -> IO Elem
+newElem = js_documentCreateNode
 
-newTextElem :: Text -> IO Elem
-newTextElem = js_createTextNode . textToJSString
+newTextElem :: JSString -> IO Elem
+newTextElem = js_createTextNode
 
 
 parent :: Elem -> IO Elem
@@ -50,16 +50,16 @@ replace o n =
      js_replaceChild par o n
      return n
 
-setAttr :: Elem -> PropId -> Text -> IO ()
-setAttr e p = js_setAttribute e p . textToJSString
+setAttr :: Elem -> PropId -> JSString -> IO ()
+setAttr e p = js_setAttribute e p
 
-inner :: Elem -> Text -> IO ()
-inner e = js_innerHtml e . textToJSString
+inner :: Elem -> JSString -> IO ()
+inner e = js_innerHtml e
 
 
-queryAll :: Text -> IO [Elem]
+queryAll :: JSString -> IO [Elem]
 queryAll query =
-  do res <- js_querySelectorAll (textToJSString query)
+  do res <- js_querySelectorAll  query
      fromJSValUncheckedListOf res
 
 onEvent :: NamedEvent a => Elem -> a -> (JSVal -> IO()) -> IO (IO ())
