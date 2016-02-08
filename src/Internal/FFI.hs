@@ -35,10 +35,8 @@ foreign import javascript unsafe "$1.removeChild($2)"
   js_removeChild :: Elem -> Elem -> IO ()
 
 foreign import javascript unsafe
-  "function ($1) { \
-  \  while ($1.hasChildNodes()) \
-  \    elem.removeChild($1.lastChild); \
-  \}"
+  "  while ($1.hasChildNodes()) \
+  \    $1.removeChild($1.lastChild)"
   js_clearChildren :: Elem -> IO ()
 
 
