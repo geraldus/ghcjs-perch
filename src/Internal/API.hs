@@ -4,8 +4,6 @@ import           Internal.FFI
 import           Internal.Type
 
 import           Data.JSString
---import           Data.JSString.Text     (textToJSString)
---import           Data.Text              (Text)
 import           GHCJS.Foreign.Callback (asyncCallback1, releaseCallback)
 import           GHCJS.Marshal          (FromJSVal (..))
 import           GHCJS.Types            (JSVal)

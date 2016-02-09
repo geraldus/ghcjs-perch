@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveDataTypeable   #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverlappingInstances #-}
+{-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE RankNTypes           #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Internal.Perch where
 
 import           Internal.API
@@ -15,9 +15,7 @@ import           Data.JSString          (JSString, pack)
 import           GHCJS.Types            (JSVal)
 
 import           Control.Monad.IO.Class (MonadIO (..))
---import           Data.JSString.JSString     (textFromJSString, textToJSString)
 import           Data.String            (IsString (..))
---import           Data.JSString              (JSString)
 import           Data.Typeable          (Typeable)
 import           Unsafe.Coerce          (unsafeCoerce)
 --------------------------------------------------------------------------------
@@ -75,7 +73,7 @@ instance ToElem a => Attributable (a -> Perch) where
 
 instance ToElem JSString where
   toElem s = Perch $ \e ->
-    do e' <- newTextElem  s
+    do e' <- newTextElem s
        addChild e' e
        return e'
 
