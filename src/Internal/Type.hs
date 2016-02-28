@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
@@ -11,14 +12,22 @@ module Internal.Type
   , JsEvent (..)
   ) where
 
+#ifdef ghcjs_HOST_OS
 import           Data.JSString
 import           GHCJS.Foreign (isNull, isUndefined)
 import           GHCJS.Marshal (FromJSVal (..), ToJSVal(..))
 import           GHCJS.Types   (JSVal)
+#endif
 --------------------------------------------------------------------------------
 
 
 --------------------------------------------------------------------------------
+#ifndef ghcjs_HOST_OS
+type JSVal= ()
+type JSString= String
+unpack= undefined
+#endif
+
 newtype Elem = Elem JSVal
 
 type PropId = JSString
@@ -50,7 +59,7 @@ data JsEvent = Blur
              | Unload
              | Wheel
 
-
+#ifdef ghcjs_HOST_OS
 instance FromJSVal Elem where
   fromJSVal v = return (if isUndefined v || isNull v
                            then Nothing
@@ -59,9 +68,12 @@ instance FromJSVal Elem where
 instance ToJSVal Elem where
   toJSVal (Elem val) = return val
 
+#endif
 
+#ifdef ghcjs_HOST_OS
 instance NamedEvent String where
   eventName = Prelude.id
+#endif
 
 instance Show a => NamedEvent a where
   eventName = eventName . show

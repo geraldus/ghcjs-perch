@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 {-# LANGUAGE DeriveDataTypeable   #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverlappingInstances #-}
@@ -10,9 +12,11 @@ module Internal.Perch where
 import           Internal.API
 import           Internal.Type
 
-
+#ifdef ghcjs_HOST_OS
 import           Data.JSString          (JSString, pack)
 import           GHCJS.Types            (JSVal)
+
+#endif
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Data.String            (IsString (..))
@@ -22,6 +26,11 @@ import           Unsafe.Coerce          (unsafeCoerce)
 
 
 --------------------------------------------------------------------------------
+#ifndef ghcjs_HOST_OS
+
+pack= undefined
+#endif
+
 newtype PerchM a =
   Perch { build :: Elem -> IO Elem }
   deriving Typeable
@@ -77,8 +86,10 @@ instance ToElem JSString where
        addChild e' e
        return e'
 
+#ifdef ghcjs_HOST_OS
 instance ToElem String where
   toElem = toElem . pack
+#endif
 
 instance Show a => ToElem a where
   toElem = toElem . show
