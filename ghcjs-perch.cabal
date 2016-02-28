@@ -31,28 +31,54 @@ build-type:          Simple
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
 
+flag ghcjs
+    Description:  either if it is being compiled with haste-inst or with cabal
+    Default: False
 
 library
+
+  if flag(ghcjs)
   -- Modules exported by the library.
-  exposed-modules: GHCJS.Perch
+      exposed-modules: GHCJS.Perch
 
-  -- Modules included in this library but not exported.
-  other-modules: Internal.API
-                 Internal.FFI
-                 Internal.Perch
-                 Internal.Type
+      -- Modules included in this library but not exported.
+      other-modules: Internal.API
+                     Internal.FFI
+                     Internal.Perch
+                     Internal.Type
 
-  -- LANGUAGE extensions used by modules in this package.
-  -- other-extensions:
+      -- LANGUAGE extensions used by modules in this package.
+      -- other-extensions:
 
-  -- Other library packages from which modules are imported.
-  build-depends:       base         >= 4.7     && < 4.9,
-                       transformers >= 0.4.3.0 && < 0.5,
-                       text         >= 1.2.1.1 && < 1.3,
-                       ghcjs-base
+      -- Other library packages from which modules are imported.
+      build-depends:       base         >= 4.7     && < 4.9,
+                           transformers >= 0.4.3.0 && < 0.5,
+                           ghcjs-base
 
-  hs-source-dirs:      src
+      hs-source-dirs:      src
 
-  default-language:    Haskell2010
+      default-language:    Haskell2010
 
-  ghc-options: -Wall -fno-warn-unused-do-bind -O
+      ghc-options: -Wall -fno-warn-unused-do-bind -O
+  else
+      exposed-modules: GHCJS.Perch
+
+      -- Modules included in this library but not exported.
+      other-modules: Internal.API
+                     Internal.FFI
+                     Internal.Perch
+                     Internal.Type
+
+      -- LANGUAGE extensions used by modules in this package.
+      -- other-extensions:
+
+      -- Other library packages from which modules are imported.
+      build-depends:       base         >= 4.7     && < 4.9,
+                           transformers >= 0.4.3.0 && < 0.5
+
+
+      hs-source-dirs:      src
+
+      default-language:    Haskell2010
+
+      ghc-options: -Wall -fno-warn-unused-do-bind -O

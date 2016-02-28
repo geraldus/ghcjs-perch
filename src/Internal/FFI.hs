@@ -1,10 +1,12 @@
+{-# LANGUAGE CPP #-}
 module Internal.FFI where
-
+#ifdef ghcjs_HOST_OS
 import           Internal.Type
 
 import           Data.JSString           (JSString)
 import           GHCJS.Foreign.Callback  (Callback)
 import           GHCJS.Types             (JSVal)
+
 --------------------------------------------------------------------------------
 
 
@@ -35,8 +37,7 @@ foreign import javascript unsafe "$1.removeChild($2)"
   js_removeChild :: Elem -> Elem -> IO ()
 
 foreign import javascript unsafe
-  "  while ($1.hasChildNodes()) \
-  \    $1.removeChild($1.lastChild)"
+  "while ($1.hasChildNodes()) $1.removeChild($1.lastChild)"
   js_clearChildren :: Elem -> IO ()
 
 
@@ -55,3 +56,5 @@ foreign import javascript unsafe
   "$1.addEventListener($2, $3);"
   js_addEventListener :: Elem -> JSString -> Callback (JSVal -> IO ()) -> IO ()
 --------------------------------------------------------------------------------
+
+#endif
