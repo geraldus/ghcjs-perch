@@ -31,13 +31,10 @@ build-type:          Simple
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
 
-flag ghcjs
-    Description:  either if it is being compiled with haste-inst or with cabal
-    Default: False
 
 library
 
-  if flag(ghcjs)
+  if impl(ghcjs >= 0.1)
   -- Modules exported by the library.
       exposed-modules: GHCJS.Perch
 
@@ -51,7 +48,7 @@ library
       -- other-extensions:
 
       -- Other library packages from which modules are imported.
-      build-depends:       base         >= 4.7     && < 4.9,
+      build-depends:       base         >= 4.7     && < 4.9,:;;;;;;
                            transformers >= 0.4.3.0 && < 0.5,
                            ghcjs-base
 
