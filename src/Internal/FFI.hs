@@ -1,12 +1,12 @@
 {-# LANGUAGE CPP #-}
 module Internal.FFI where
+
 #ifdef ghcjs_HOST_OS
 import           Internal.Type
 
-import           Data.JSString           (JSString)
-import           GHCJS.Foreign.Callback  (Callback)
-import           GHCJS.Types             (JSVal)
-
+import           Data.JSString          (JSString)
+import           GHCJS.Foreign.Callback (Callback)
+import           GHCJS.Types            (JSVal)
 --------------------------------------------------------------------------------
 
 
@@ -56,5 +56,4 @@ foreign import javascript unsafe
   "$1.addEventListener($2, $3);"
   js_addEventListener :: Elem -> JSString -> Callback (JSVal -> IO ()) -> IO ()
 --------------------------------------------------------------------------------
-
 #endif

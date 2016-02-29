@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                  #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
@@ -15,7 +15,7 @@ module Internal.Type
 #ifdef ghcjs_HOST_OS
 import           Data.JSString
 import           GHCJS.Foreign (isNull, isUndefined)
-import           GHCJS.Marshal (FromJSVal (..), ToJSVal(..))
+import           GHCJS.Marshal (FromJSVal (..), ToJSVal (..))
 import           GHCJS.Types   (JSVal)
 #endif
 --------------------------------------------------------------------------------
@@ -23,9 +23,9 @@ import           GHCJS.Types   (JSVal)
 
 --------------------------------------------------------------------------------
 #ifndef ghcjs_HOST_OS
-type JSVal= ()
-type JSString= String
-unpack= undefined
+type JSVal = ()
+type JSString = String
+unpack = undefined
 #endif
 
 newtype Elem = Elem JSVal
@@ -67,7 +67,6 @@ instance FromJSVal Elem where
 
 instance ToJSVal Elem where
   toJSVal (Elem val) = return val
-
 #endif
 
 #ifdef ghcjs_HOST_OS
@@ -79,7 +78,7 @@ instance Show a => NamedEvent a where
   eventName = eventName . show
 
 instance NamedEvent JSString where
-  eventName x = eventName ((unpack x) :: String)
+  eventName x = eventName (unpack x :: String)
 
 instance Show JsEvent where
   show Blur      = "blur"

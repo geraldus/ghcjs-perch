@@ -1,19 +1,17 @@
 {-# LANGUAGE CPP #-}
 module Internal.API where
 
-
 import           Internal.FFI
 import           Internal.Type
+
 #ifdef ghcjs_HOST_OS
 import           Data.JSString
 import           GHCJS.Foreign.Callback (asyncCallback1, releaseCallback)
 import           GHCJS.Marshal          (FromJSVal (..))
 import           GHCJS.Types            (JSVal)
 #else
-
-type JSVal= ()
-type JSString= String
-
+type JSVal = ()
+type JSString = String
 #endif
 --------------------------------------------------------------------------------
 
@@ -23,37 +21,38 @@ getDocument :: IO Elem
 #ifdef ghcjs_HOST_OS
 getDocument = js_document
 #else
-getDocument = notimplemented
+getDocument = notImplemented
 #endif
 
-notimplemented= error "client side call not implemented in the server"
+notImplemented :: a
+notImplemented = error "Client side call not implemented on server side."
 
 getBody :: IO Elem
 #ifdef ghcjs_HOST_OS
 getBody = js_documentBody
 #else
-getBody = notimplemented
+getBody = notImplemented
 #endif
 
 newElem :: JSString -> IO Elem
 #ifdef ghcjs_HOST_OS
 newElem = js_documentCreateNode
 #else
-newElem = notimplemented
+newElem = notImplemented
 #endif
 
 newTextElem :: JSString -> IO Elem
 #ifdef ghcjs_HOST_OS
 newTextElem = js_createTextNode
 #else
-newTextElem = notimplemented
+newTextElem = notImplemented
 #endif
 
 parent :: Elem -> IO Elem
 #ifdef ghcjs_HOST_OS
 parent = js_parentNode
 #else
-parent = notimplemented
+parent = notImplemented
 #endif
 
 -- | Appends one element to another.
@@ -63,7 +62,7 @@ addChild :: Elem -- ^ child element to append
 #ifdef ghcjs_HOST_OS
 addChild = flip js_appendChild
 #else
-addChild = notimplemented
+addChild = notImplemented
 #endif
 
 -- | Remove child from parent.
@@ -73,14 +72,14 @@ removeChild :: Elem -- ^ child to remove
 #ifdef ghcjs_HOST_OS
 removeChild = flip js_removeChild
 #else
-removeChild = notimplemented
+removeChild = notImplemented
 #endif
 
 clearChildren :: Elem -> IO ()
 #ifdef ghcjs_HOST_OS
 clearChildren = js_clearChildren
 #else
-clearChildren = notimplemented
+clearChildren = notImplemented
 #endif
 
 replace :: Elem -> Elem -> IO Elem
@@ -90,21 +89,21 @@ replace o n =
      js_replaceChild par o n
      return n
 #else
-replace = notimplemented
+replace = notImplemented
 #endif
 
 setAttr :: Elem -> PropId -> JSString -> IO ()
 #ifdef ghcjs_HOST_OS
 setAttr e p = js_setAttribute e p
 #else
-setAttr = notimplemented
+setAttr = notImplemented
 #endif
 
 inner :: Elem -> JSString -> IO ()
 #ifdef ghcjs_HOST_OS
 inner e = js_innerHtml e
 #else
-inner = notimplemented
+inner = notImplemented
 #endif
 
 
@@ -114,7 +113,7 @@ queryAll query =
   do res <- js_querySelectorAll  query
      fromJSValUncheckedListOf res
 #else
-queryAll = notimplemented
+queryAll = notImplemented
 #endif
 
 onEvent :: NamedEvent a => Elem -> a -> (JSVal -> IO()) -> IO (IO ())
@@ -124,6 +123,6 @@ onEvent el et hnd = do
   js_addEventListener el (pack (eventName et)) callback
   return (releaseCallback callback)
 #else
-onEvent = notimplemented
+onEvent = notImplemented
 #endif
 --------------------------------------------------------------------------------

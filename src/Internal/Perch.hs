@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                  #-}
 
 {-# LANGUAGE DeriveDataTypeable   #-}
 {-# LANGUAGE FlexibleInstances    #-}
@@ -15,7 +15,6 @@ import           Internal.Type
 #ifdef ghcjs_HOST_OS
 import           Data.JSString          (JSString, pack)
 import           GHCJS.Types            (JSVal)
-
 #endif
 
 import           Control.Monad.IO.Class (MonadIO (..))
@@ -27,8 +26,7 @@ import           Unsafe.Coerce          (unsafeCoerce)
 
 --------------------------------------------------------------------------------
 #ifndef ghcjs_HOST_OS
-
-pack= undefined
+pack = undefined
 #endif
 
 newtype PerchM a =
