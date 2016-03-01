@@ -86,6 +86,7 @@ matrix:
 before_install:
 # Using compiler above sets CC to an invalid value, so unset it
 - unset CC
+- export CASHER_TIME_OUT=600
 
 # We want to always allow newer versions of packages when building on GHC HEAD
 # - CABALARGS=""
