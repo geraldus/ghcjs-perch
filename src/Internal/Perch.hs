@@ -323,11 +323,7 @@ forElems query action = Perch $ \e ->
      mapM_ (build action) els
      return e
 
--- | A bit more declarative synmonym of 'forElems'.
-withElems :: JSString -> Perch -> Perch
-withElems = forElems
-
--- | Like forElems, but discards final result.
+-- | Like 'forElems', but discards final result.
 -- Example:
 --
 -- @
@@ -341,12 +337,30 @@ withElems = forElems
 --        forElems' ".modify" $
 --          this ! style "color:red"
 -- @
-forElems_ :: JSString -> Perch -> IO ()
+forElems_, forElems' :: JSString -> Perch -> IO ()
 forElems_ els doIt =
   do build (forElems els doIt) undefined
      return ()
 
-forElems', withElems_, withElems' :: JSString -> Perch -> IO ()
+-- Same as 'forElems_'
 forElems' = forElems_
-withElems_ = forElems_
-withElems' = forElems_
+{-# DEPRECATED forElems' "Please use 'forElems_' instead." #-}
+
+-- | Decalarative synonym for @flip forElems@.
+--
+-- Examples:
+--
+-- @
+-- doAction \``withElems`\` ".item"
+-- `forElems` ".item" doAction
+-- @
+withElems ::  Perch -> JSString -> Perch
+withElems = flip forElems
+
+-- | A declarative synonym of @flip forElements@.
+withElems_, withElems' :: Perch -> JSString -> IO ()
+withElems_ = flip forElems_
+
+-- | Same as 'withElems_'.
+withElems' = withElems_
+{-# DEPRECATED withElems' "Please use 'withElems_' instead." #-}
