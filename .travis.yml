@@ -47,7 +47,7 @@ matrix:
   # - env: BUILD=cabal GHCVER=head  CABALVER=head
   #   compiler: ": #GHC HEAD"
   #   addons: {apt: {packages: [cabal-install-head,ghc-head], sources: [hvr-ghc]}}
-# -
+
   # The Stack builds. We can pass in arbitrary Stack arguments via the ARGS
   # variable, such as using --stack-yaml to point to a different file.
   - env: BUILD=stack ARGS="--resolver lts-3"
@@ -55,8 +55,8 @@ matrix:
     addons: {apt: {packages: [ghc-7.10.2], sources: [hvr-ghc]}}
 
   - env: BUILD=stack ARGS="--resolver lts-5"
-    compiler: ": #stack GHCJS-7.10.3"
-    addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
+    compiler: ": #stack GHCJS-7.10.2"
+    addons: {apt: {packages: [ghc-7.10.2], sources: [hvr-ghc]}}
 
   - env: BUILD=stack ARGS="--resolver lts-3 --compiler=ghc-7.10.2"
     compiler: ": #stack GHC-7.10.2"
