@@ -101,11 +101,11 @@ setAttr e p = js_setAttribute e p
 setAttr = notImplemented
 #endif
 
-inner :: Elem -> JSString -> IO ()
+setInnerHTML :: Elem -> JSString -> IO ()
 #ifdef ghcjs_HOST_OS
-inner e = js_innerHtml e
+setInnerHTML e = js_setInnerHtml e
 #else
-inner = notImplemented
+setInnerHTML = notImplemented
 #endif
 
 

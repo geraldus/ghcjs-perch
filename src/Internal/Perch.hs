@@ -120,7 +120,7 @@ child me ch = Perch $ \e' ->
 setHtml :: Perch -> JSString -> Perch
 setHtml me text = Perch $ \e' ->
   do e <- build me e'
-     inner e text
+     setInnerHTML e text
      return e'
 
 -- | Build an element and add an event handler to it.

@@ -45,7 +45,7 @@ foreign import javascript unsafe "$1.setAttribute($2, $3)"
   js_setAttribute :: Elem -> PropId -> JSString -> IO ()
 
 foreign import javascript unsafe "$1.innerHTML = $2"
-  js_innerHtml :: Elem -> JSString -> IO ()
+  js_setInnerHtml :: Elem -> JSString -> IO ()
 
 
 foreign import javascript unsafe "document.querySelectorAll($1)"
