@@ -13,6 +13,7 @@ cache:
   - $HOME/.ghc
   - $HOME/.cabal
   - $HOME/.stack
+  - $HOME/.ghcjs
 
 # The different configurations we want to test. We have BUILD=cabal which uses
 # cabal-install, and BUILD=stack which uses Stack. More documentation on each
@@ -50,11 +51,19 @@ matrix:
   # The Stack builds. We can pass in arbitrary Stack arguments via the ARGS
   # variable, such as using --stack-yaml to point to a different file.
   - env: BUILD=stack ARGS="--resolver lts-3"
-    compiler: ": #stack ghcjs-7.10.2"
+    compiler: ": #stack GHCJS-7.10.2"
     addons: {apt: {packages: [ghc-7.10.2], sources: [hvr-ghc]}}
 
   - env: BUILD=stack ARGS="--resolver lts-5"
-    compiler: ": #stack ghcjs-7.10.3"
+    compiler: ": #stack GHCJS-7.10.3"
+    addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
+
+  - env: BUILD=stack ARGS="--resolver lts-3 --compiler=ghc-7.10.2"
+    compiler: ": #stack GHC-7.10.2"
+    addons: {apt: {packages: [ghc-7.10.2], sources: [hvr-ghc]}}
+
+  - env: BUILD=stack ARGS="--resolver lts-5 --compiler=ghc-7.10.3"
+    compiler: ": #stack GHC-7.10.3"
     addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
 
   # # Nightly builds are allowed to fail
@@ -72,11 +81,12 @@ matrix:
 
   allow_failures:
   # - env: BUILD=cabal GHCVER=head  CABALVER=head
-  - env: BUILD=stack ARGS="--resolver lts-5"
+  # - env: BUILD=stack ARGS="--resolver lts-5"
 
 before_install:
 # Using compiler above sets CC to an invalid value, so unset it
 - unset CC
+- export CASHER_TIME_OUT=600
 
 # We want to always allow newer versions of packages when building on GHC HEAD
 # - CABALARGS=""
@@ -112,7 +122,7 @@ script:
 - |
   case "$BUILD" in
     stack)
-      stack --no-terminal $ARGS test --haddock --no-haddock-deps
+      stack --no-terminal $ARGS test --no-haddock --no-haddock-deps
       ;;
     cabal)
       cabal configure --enable-tests --enable-benchmarks -v2 --ghc-options="-O0 -Werror"
