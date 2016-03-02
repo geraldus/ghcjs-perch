@@ -17,15 +17,17 @@ type JSString = String
 
 
 --------------------------------------------------------------------------------
+#ifndef ghcjs_HOST_OS
+notImplemented :: a
+notImplemented = error "Client side call not implemented on server side."
+#endif
+
 getDocument :: IO Elem
 #ifdef ghcjs_HOST_OS
 getDocument = js_document
 #else
 getDocument = notImplemented
 #endif
-
-notImplemented :: a
-notImplemented = error "Client side call not implemented on server side."
 
 getBody :: IO Elem
 #ifdef ghcjs_HOST_OS
