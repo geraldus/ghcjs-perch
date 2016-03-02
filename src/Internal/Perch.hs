@@ -94,6 +94,8 @@ instance Show a => ToElem a where
 
 
 --------------------------------------------------------------------------------
+-- * DOM Tree Building
+
 attr :: forall a. PerchM a -> (PropId, JSString) -> PerchM a
 attr tag (n, v) = Perch $ \e ->
   do tag' <- build tag e
@@ -132,7 +134,7 @@ addEvent be event action = Perch $ \e ->
      onEvent e' (eventName event) action
      return e'
 
--- * Leaf DOM Nodes
+-- ** Leaf DOM Nodes
 area, base, br, col, embed, hr, img, input, keygen, link, menuitem :: Perch
 meta, param, source, track, wbr :: Perch
 
@@ -153,7 +155,7 @@ source   = nelem "source"
 track    = nelem "track"
 wbr      = nelem "wbr"
 
--- * Parent DOM Nodes
+-- ** Parent DOM Nodes
 
 a, abbr, address, article, aside, audio, b, bdo, blockquote, body, button,
   canvas, caption, center, cite, code, colgroup, command, datalist, dd, del,
@@ -258,14 +260,16 @@ video cont      = nelem "video" `child` cont
 ctag :: (ToElem b) => JSString -> b -> Perch
 ctag tag cont = nelem tag `child` cont
 
--- * HTML4 Support
+-- ** HTML4 Support
 center cont = nelem "center" `child` cont
 
 noHtml :: Perch
 noHtml = mempty
 
 
--- * DOM Attributes
+-- * DOM Tree Navigation & Manipulation
+
+-- ** Attributes
 
 atr :: String -> JSString -> Attribute
 atr n v = (pack n,  v)
@@ -279,8 +283,7 @@ src    = atr "src"
 style  = atr "style"
 width  = atr "width"
 
-
--- * DOM Tree Navigation
+-- ** Traversal
 
 -- | Return the current node.
 this :: Perch
@@ -293,6 +296,8 @@ goParent ch pe = Perch $ \e ->
      pr <- parent fs
      sn <- build pe pr
      return sn
+
+-- ** Manipulation
 
 -- | Delete the current node and return the parent.
 delete :: Perch
