@@ -13,6 +13,7 @@ import           Internal.Type
 
 #ifdef ghcjs_HOST_OS
 import           Data.JSString          (JSString, pack)
+import           GHCJS.Foreign.Callback (Callback)
 import           GHCJS.Types            (JSVal)
 #endif
 
@@ -126,9 +127,10 @@ setHtml me text = Perch $ \e' ->
      return e'
 
 -- | Build an element and add an event handler to it.
--- Event handler should be an IO action taking one argument of type @JSRef a@,
--- that is an actual event object catched by JavsScript.
-addEvent :: (NamedEvent a) => Perch -> a -> (JSVal -> IO ()) -> Perch
+--
+-- Event handler should be an IO action wrapped by GHCJS' 'Callback' taking one
+-- argument, that is an actual JavaScript event object baked in @JSVal@.
+addEvent :: (NamedEvent a) => Perch -> a -> Callback (JSVal -> IO ()) -> Perch
 addEvent be event action = Perch $ \e ->
   do e' <- build be e
      onEvent e' (eventName event) action

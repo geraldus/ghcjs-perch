@@ -11,6 +11,10 @@ import           GHCJS.Types            (JSVal)
 
 
 --------------------------------------------------------------------------------
+-- | GHCJS' callback taking one argument.
+-- Handy synonym to simplify type signatures.
+type Callback1 = Callback (JSVal -> IO ())
+
 foreign import javascript unsafe "$r = document;"
   js_document :: IO Elem
 
@@ -54,6 +58,11 @@ foreign import javascript unsafe "document.querySelectorAll($1)"
 
 foreign import javascript unsafe
   "$1.addEventListener($2, $3);"
-  js_addEventListener :: Elem -> JSString -> Callback (JSVal -> IO ()) -> IO ()
+  js_addEventListener :: Elem -> JSString -> Callback1 -> IO ()
+
+-- | Remove event listener from element.
+foreign import javascript unsafe
+  "$1.removeEventListener($2, $3);"
+  js_removeEventListener :: Elem -> JSString -> Callback1 -> IO ()
 --------------------------------------------------------------------------------
 #endif

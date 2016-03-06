@@ -6,12 +6,13 @@ import           Internal.Type
 
 #ifdef ghcjs_HOST_OS
 import           Data.JSString
-import           GHCJS.Foreign.Callback (asyncCallback1, releaseCallback)
+import           GHCJS.Foreign.Callback (Callback)
 import           GHCJS.Marshal          (FromJSVal (..))
 import           GHCJS.Types            (JSVal)
 #else
 type JSVal = ()
 type JSString = String
+data Callback a = Callback a
 #endif
 --------------------------------------------------------------------------------
 
@@ -118,12 +119,16 @@ queryAll query =
 queryAll = notImplemented
 #endif
 
-onEvent :: NamedEvent a => Elem -> a -> (JSVal -> IO()) -> IO (IO ())
+-- | Attach event listener to element.
+-- Returns an action removing listener.
+onEvent :: NamedEvent a => Elem -> a -> Callback (JSVal -> IO()) -> IO (IO ())
 #ifdef ghcjs_HOST_OS
 onEvent el et hnd = do
-  callback <- asyncCallback1 hnd
-  js_addEventListener el (pack (eventName et)) callback
-  return (releaseCallback callback)
+  js_addEventListener el e hnd
+  return eventUnsetter
+  where
+    eventUnsetter = js_removeEventListener el e hnd
+    e = pack (eventName et)
 #else
 onEvent = notImplemented
 #endif
