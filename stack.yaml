@@ -1,3 +1,4 @@
+# http://docs.haskellstack.org/en/stable/ghcjs/#project-with-both-client-and-server
 resolver: lts-5.5
 
 compiler: ghcjs-0.2.0.20151029_ghc-7.10.2
