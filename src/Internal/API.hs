@@ -127,7 +127,18 @@ queryAll = notImplemented
 -- If you are sure that you do not want to remove handler consider using
 -- 'onEvent''.
 onEvent :: NamedEvent e => Elem -> e -> Callback (JSVal -> IO()) -> IO (IO ())
+
+-- | Attach endless event listener to element.
+--
+-- Use this function to attach event handlers which supposed not to be removed
+-- during application run.
 onEvent' :: NamedEvent e => Elem -> e -> (JSVal -> IO()) -> IO ()
+
+-- | Remove attached event listener.
+--
+-- Normally you can use action returned by 'onEvent' to detach event listener,
+-- however you can also use this function directly.
+removeEvent :: NamedEvent e => Elem -> e -> Callback (JSVal -> IO ()) -> IO ()
 #ifdef ghcjs_HOST_OS
 onEvent el et cb =
   do js_addEventListener el e cb
@@ -135,21 +146,12 @@ onEvent el et cb =
   where
     e = pack (eventName et)
 
--- | Attach endless event listener to element.
---
--- Use this function to attach event handlers which supposed not to be removed
--- during application run.
 onEvent' el et hnd =
   do cb <- asyncCallback1 hnd
      js_addEventListener el e cb
   where
     e = pack (eventName et)
 
--- | Remove attached event listener.
---
--- Normally you can use action returned by 'onEvent' to detach event listener,
--- however you can also use this function directly.
-removeEvent :: NamedEvent e => Elem -> e -> Callback (JSVal -> IO ()) -> IO ()
 removeEvent el et cb = js_removeEventListener el (pack (eventName et)) cb
 #else
 onEvent = notImplemented
