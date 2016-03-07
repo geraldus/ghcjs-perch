@@ -10,8 +10,6 @@ import           GHCJS.Foreign.Callback (Callback, asyncCallback1)
 import           GHCJS.Marshal          (FromJSVal (..))
 import           GHCJS.Types            (JSVal)
 #else
-type JSVal = ()
-type JSString = String
 data Callback a = Callback a
 #endif
 --------------------------------------------------------------------------------
@@ -110,7 +108,11 @@ setInnerHTML = notImplemented
 #endif
 
 getElemById :: JSString -> IO Elem
+#ifdef ghcjs_HOST_OS
 getElemById = (Elem <$>) . js_getElementById
+#else
+getElemById = notImplemented
+#endif
 
 queryAll :: JSString -> IO [Elem]
 #ifdef ghcjs_HOST_OS
