@@ -47,10 +47,9 @@ class Attributable h where
 
 --------------------------------------------------------------------------------
 instance Monoid (PerchM a) where
-  mappend mx my = Perch $ \e ->
+  mappend mx my = Perch . withPerch $ \e ->
     do build mx e
        build my e
-       return e
   mempty = Perch return
 
 instance Functor PerchM
@@ -63,7 +62,7 @@ instance Monad PerchM where
   return = mempty
 
 instance MonadIO PerchM where
-  liftIO io = Perch $ \e -> io >> return e
+  liftIO io = Perch . withPerch $ const io
 
 instance ToElem (PerchM a) where
   toElem = unsafeCoerce
@@ -404,3 +403,7 @@ withElemId = flip forElemId
 -- | A synonym to @flip forElemId_@.
 withElemId_ :: Perch -> JSString -> IO ()
 withElemId_ = flip forElemId_
+
+
+withPerch :: (Elem -> IO a) -> Elem -> IO Elem
+withPerch act e = act e >> return e
