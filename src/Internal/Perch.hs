@@ -391,3 +391,23 @@ withElems_ = flip forElems_
 -- | Same as 'withElems_'.
 withElems' = withElems_
 {-# DEPRECATED withElems' "Please use 'withElems_' instead." #-}
+-- | Apply action to perch with given identifier.
+forElemId :: JSString -> Perch -> Perch
+forElemId eid act = Perch $ \ e ->
+  do el <- getElemById eid
+     build act el
+     return el
+
+-- | IO version of 'forElemId_'.
+forElemId_ :: JSString -> Perch -> IO ()
+forElemId_ act eid =
+  do flip build undefined (forElemId act eid)
+     return ()
+
+-- | A synonym to @flip forElemId@.
+withElemId :: Perch -> JSString -> Perch
+withElemId = flip forElemId
+
+-- | A synonym to @flip forElemId_@.
+withElemId_ :: Perch -> JSString -> IO ()
+withElemId_ = flip forElemId_

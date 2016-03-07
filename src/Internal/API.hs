@@ -109,6 +109,8 @@ setInnerHTML (Elem e) = js_setInnerHtml e
 setInnerHTML = notImplemented
 #endif
 
+getElemById :: JSString -> IO Elem
+getElemById = (Elem <$>) . js_getElementById
 
 queryAll :: JSString -> IO [Elem]
 #ifdef ghcjs_HOST_OS

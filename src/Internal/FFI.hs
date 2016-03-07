@@ -19,6 +19,8 @@ foreign import javascript unsafe "$r = document;"
 foreign import javascript unsafe "document.body"
   js_documentBody :: IO JSVal
 
+foreign import javascript unsafe "document.getElementById($1)"
+  js_getElementById :: JSString -> IO JSVal
 
 foreign import javascript unsafe "document.querySelectorAll($1)"
   js_querySelectorAll :: JSString -> IO JSVal
