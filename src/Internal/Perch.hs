@@ -148,10 +148,10 @@ addEvent' be event action = Perch $ \e ->
 --
 -- Note, you still have to release callback manually.
 remEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
-remEvent be event action = Perch $ \e ->
-  do e' <- build be e
+remEvent be event action = Perch $ \e' ->
+  do e <- build be e'
      removeEvent e event action
-     return e'
+     return e
 
 -- ** Leaf DOM Nodes
 area, base, br, col, embed, hr, img, input, keygen, link, menuitem :: Perch
