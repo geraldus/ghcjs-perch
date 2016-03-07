@@ -144,8 +144,16 @@ onEvent' el et hnd =
      js_addEventListener el e cb
   where
     e = pack (eventName et)
+
+-- | Remove attached event listener.
+--
+-- Normally you can use action returned by 'onEvent' to detach event listener,
+-- however you can also use this function directly.
+removeEvent :: NamedEvent e => Elem -> e -> Callback (JSVal -> IO ()) -> IO ()
+removeEvent el et cb = js_removeEventListener el (pack (eventName et)) cb
 #else
 onEvent = notImplemented
 onEvent' = notImplemented
+removeEvent = notImplemented
 #endif
 --------------------------------------------------------------------------------
