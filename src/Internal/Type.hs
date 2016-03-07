@@ -56,8 +56,8 @@ instance FromJSVal Elem where
     do isElem <- js_isInCurrentDOM v
        return $
          if isElem
-         then Nothing
-         else Just (Elem v)
+         then Just (Elem v)
+         else Nothing
 
 instance ToJSVal Elem where
   toJSVal (Elem val) = return val
