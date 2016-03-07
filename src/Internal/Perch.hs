@@ -347,7 +347,7 @@ forElems query action = Perch $ \e ->
      mapM_ (build action) els
      return e
 
--- | Like 'forElems', but discards final result.
+-- | Like 'forElems', but works in IO monad.
 -- Example:
 --
 -- @
@@ -356,7 +356,7 @@ forElems query action = Perch $ \e ->
 -- main = do
 --   body <- getBody
 --   makeRed \<- asyncCallback1 (\\ _ -\> do
---     forElems' ".changeable" $
+--     forElems_ ".changeable" $
 --       this ! style "color:red")
 --   (flip build) body . div $ do
 --      div ! atr "class" "changeable" $ \"Changeable\"
@@ -364,14 +364,10 @@ forElems query action = Perch $ \e ->
 --      div ! atr "class" "changeable" $ \"Changeable\"
 --      addEvent this Click makeRed
 -- @
-forElems_, forElems' :: JSString -> Perch -> IO ()
-forElems_ els doIt =
-  do build (forElems els doIt) undefined
+forElems_ :: JSString -> Perch -> IO ()
+forElems_ els action =
+  do build (forElems els action) undefined
      return ()
-
--- Same as 'forElems_'
-forElems' = forElems_
-{-# DEPRECATED forElems' "Please use 'forElems_' instead." #-}
 
 -- | Decalarative synonym for @flip forElems@.
 --
@@ -385,12 +381,9 @@ withElems ::  Perch -> JSString -> Perch
 withElems = flip forElems
 
 -- | A declarative synonym of @flip forElements@.
-withElems_, withElems' :: Perch -> JSString -> IO ()
+withElems_ :: Perch -> JSString -> IO ()
 withElems_ = flip forElems_
 
--- | Same as 'withElems_'.
-withElems' = withElems_
-{-# DEPRECATED withElems' "Please use 'withElems_' instead." #-}
 -- | Apply action to perch with given identifier.
 forElemId :: JSString -> Perch -> Perch
 forElemId eid act = Perch $ \ e ->
