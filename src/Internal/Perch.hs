@@ -355,13 +355,13 @@ forElems query action = Perch $ \e ->
 --
 -- main = do
 --   body <- getBody
---   makeRed <- asyncCallback1 (\ _ -> do
+--   makeRed \<- asyncCallback1 (\\ _ -\> do
 --     forElems' ".changeable" $
 --       this ! style "color:red")
 --   (flip build) body . div $ do
---      div ! atr "class" "changeable" $ "Changeable"
---      div "Static"
---      div ! atr "class" "changeable" $ "Changeable"
+--      div ! atr "class" "changeable" $ \"Changeable\"
+--      div \"Static\"
+--      div ! atr "class" "changeable" $ \"Changeable\"
 --      addEvent this Click makeRed
 -- @
 forElems_, forElems' :: JSString -> Perch -> IO ()

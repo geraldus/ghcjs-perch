@@ -125,7 +125,7 @@ queryAll = notImplemented
 -- callback manually.
 --
 -- If you are sure that you do not want to remove handler consider using
--- 'onEvent\''.
+-- 'onEvent''.
 onEvent :: NamedEvent e => Elem -> e -> Callback (JSVal -> IO()) -> IO (IO ())
 onEvent' :: NamedEvent e => Elem -> e -> (JSVal -> IO()) -> IO ()
 #ifdef ghcjs_HOST_OS
