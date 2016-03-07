@@ -49,7 +49,7 @@ library
 
       -- Other library packages from which modules are imported.
       build-depends:       base         >= 4.7     && < 4.9,
-                           transformers >= 0.4.3.0 && < 0.5,
+                           transformers,
                            ghcjs-base
 
       hs-source-dirs:      src
