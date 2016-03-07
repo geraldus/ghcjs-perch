@@ -126,14 +126,23 @@ setHtml me text = Perch $ \e' ->
      setInnerHTML e text
      return e'
 
--- | Build an element and add an event handler to it.
+-- | Build perch and attach an event handler to its element.
 --
 -- Event handler should be an IO action wrapped by GHCJS' 'Callback' taking one
 -- argument, that is an actual JavaScript event object baked in @JSVal@.
-addEvent :: (NamedEvent a) => Perch -> a -> Callback (JSVal -> IO ()) -> Perch
+addEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
 addEvent be event action = Perch $ \e ->
   do e' <- build be e
-     onEvent e' (eventName event) action
+     onEvent e' event action
+     return e'
+
+-- | Build perch and attach an event handler to its element.  Use this function
+-- only when you are sure that you won't detach handler during application run.
+addEvent' :: (NamedEvent e) => Perch -> e -> (JSVal -> IO ()) -> Perch
+addEvent' be event action = Perch $ \e ->
+  do e' <- build be e
+     onEvent' e' event action
+     return e'
      return e'
 
 -- ** Leaf DOM Nodes
@@ -334,15 +343,18 @@ forElems query action = Perch $ \e ->
 -- Example:
 --
 -- @
+-- import GHCJS.Foreign.Callback (asyncCallback1)
+--
 -- main = do
 --   body <- getBody
---   (flip build) body . pre $ do
---      div ! atr "class" "modify" $ "click"
---      div "not changed"
---      div ! atr "class" "modify" $ "here"
---      addEvent this Click $ \_ _ -> do
---        forElems' ".modify" $
---          this ! style "color:red"
+--   makeRed <- asyncCallback1 (\ _ -> do
+--     forElems' ".changeable" $
+--       this ! style "color:red")
+--   (flip build) body . div $ do
+--      div ! atr "class" "changeable" $ "Changeable"
+--      div "Static"
+--      div ! atr "class" "changeable" $ "Changeable"
+--      addEvent this Click makeRed
 -- @
 forElems_, forElems' :: JSString -> Perch -> IO ()
 forElems_ els doIt =

@@ -6,7 +6,7 @@ import           Internal.Type
 
 #ifdef ghcjs_HOST_OS
 import           Data.JSString
-import           GHCJS.Foreign.Callback (Callback)
+import           GHCJS.Foreign.Callback (Callback, asyncCallback1)
 import           GHCJS.Marshal          (FromJSVal (..))
 import           GHCJS.Types            (JSVal)
 #else
@@ -119,17 +119,33 @@ queryAll query =
 queryAll = notImplemented
 #endif
 
--- | Attach event listener to element.
--- Returns an action removing listener.
-onEvent :: NamedEvent a => Elem -> a -> Callback (JSVal -> IO()) -> IO (IO ())
+-- | Attach an event listener to element.
+--
+-- Returns an action removing listener, though you still have to release
+-- callback manually.
+--
+-- If you are sure that you do not want to remove handler consider using
+-- 'onEvent\''.
+onEvent :: NamedEvent e => Elem -> e -> Callback (JSVal -> IO()) -> IO (IO ())
+onEvent' :: NamedEvent e => Elem -> e -> (JSVal -> IO()) -> IO ()
 #ifdef ghcjs_HOST_OS
-onEvent el et hnd = do
-  js_addEventListener el e hnd
-  return eventUnsetter
+onEvent el et cb =
+  do js_addEventListener el e cb
+     return $ removeEvent el e cb
   where
-    eventUnsetter = js_removeEventListener el e hnd
+    e = pack (eventName et)
+
+-- | Attach endless event listener to element.
+--
+-- Use this function to attach event handlers which supposed not to be removed
+-- during application run.
+onEvent' el et hnd =
+  do cb <- asyncCallback1 hnd
+     js_addEventListener el e cb
+  where
     e = pack (eventName et)
 #else
 onEvent = notImplemented
+onEvent' = notImplemented
 #endif
 --------------------------------------------------------------------------------
