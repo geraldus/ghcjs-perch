@@ -385,10 +385,9 @@ withElems_ = flip forElems_
 
 -- | Apply action to perch with given identifier.
 forElemId :: JSString -> Perch -> Perch
-forElemId eid act = Perch $ \ e ->
+forElemId eid act = Perch . withPerch . const $
   do el <- getElemById eid
      build act el
-     return el
 
 -- | IO version of 'forElemId_'.
 forElemId_ :: JSString -> Perch -> IO ()
