@@ -3,13 +3,7 @@
 {-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Internal.Type
-  ( Elem
-  , PropId
-  , Attribute
-  , NamedEvent (..)
-  , JsEvent (..)
-  ) where
+module Internal.Type where
 
 #ifdef ghcjs_HOST_OS
 import           Data.JSString

@@ -25,35 +25,35 @@ notImplemented = error "Client side call not implemented on server side."
 
 getDocument :: IO Elem
 #ifdef ghcjs_HOST_OS
-getDocument = js_document
+getDocument = Elem <$> js_document
 #else
 getDocument = notImplemented
 #endif
 
 getBody :: IO Elem
 #ifdef ghcjs_HOST_OS
-getBody = js_documentBody
+getBody = Elem <$> js_documentBody
 #else
 getBody = notImplemented
 #endif
 
 newElem :: JSString -> IO Elem
 #ifdef ghcjs_HOST_OS
-newElem = js_documentCreateNode
+newElem = (Elem <$>) . js_documentCreateNode
 #else
 newElem = notImplemented
 #endif
 
 newTextElem :: JSString -> IO Elem
 #ifdef ghcjs_HOST_OS
-newTextElem = js_createTextNode
+newTextElem = (Elem <$>) . js_createTextNode
 #else
 newTextElem = notImplemented
 #endif
 
 parent :: Elem -> IO Elem
 #ifdef ghcjs_HOST_OS
-parent = js_parentNode
+parent (Elem c) = Elem <$> js_parentNode c
 #else
 parent = notImplemented
 #endif
@@ -63,7 +63,7 @@ addChild :: Elem -- ^ child element to append
          -> Elem -- ^ parent element
          -> IO ()
 #ifdef ghcjs_HOST_OS
-addChild = flip js_appendChild
+addChild (Elem c) (Elem p) = js_appendChild p c
 #else
 addChild = notImplemented
 #endif
@@ -73,38 +73,38 @@ removeChild :: Elem -- ^ child to remove
             -> Elem -- ^ parent node
             -> IO ()
 #ifdef ghcjs_HOST_OS
-removeChild = flip js_removeChild
+removeChild (Elem c) (Elem p) = js_removeChild p c
 #else
 removeChild = notImplemented
 #endif
 
 clearChildren :: Elem -> IO ()
 #ifdef ghcjs_HOST_OS
-clearChildren = js_clearChildren
+clearChildren (Elem e) = js_clearChildren e
 #else
 clearChildren = notImplemented
 #endif
 
 replace :: Elem -> Elem -> IO Elem
 #ifdef ghcjs_HOST_OS
-replace o n =
-  do par <- parent o
+replace oe@(Elem o) (Elem n) =
+  do (Elem par) <- parent oe
      js_replaceChild par o n
-     return n
+     return (Elem n)
 #else
 replace = notImplemented
 #endif
 
 setAttr :: Elem -> PropId -> JSString -> IO ()
 #ifdef ghcjs_HOST_OS
-setAttr e p = js_setAttribute e p
+setAttr (Elem e) p = js_setAttribute e p
 #else
 setAttr = notImplemented
 #endif
 
 setInnerHTML :: Elem -> JSString -> IO ()
 #ifdef ghcjs_HOST_OS
-setInnerHTML e = js_setInnerHtml e
+setInnerHTML (Elem e) = js_setInnerHtml e
 #else
 setInnerHTML = notImplemented
 #endif
@@ -113,7 +113,7 @@ setInnerHTML = notImplemented
 queryAll :: JSString -> IO [Elem]
 #ifdef ghcjs_HOST_OS
 queryAll query =
-  do res <- js_querySelectorAll  query
+  do res <- js_querySelectorAll query
      fromJSValUncheckedListOf res
 #else
 queryAll = notImplemented
@@ -140,19 +140,19 @@ onEvent' :: NamedEvent e => Elem -> e -> (JSVal -> IO()) -> IO ()
 -- however you can also use this function directly.
 removeEvent :: NamedEvent e => Elem -> e -> Callback (JSVal -> IO ()) -> IO ()
 #ifdef ghcjs_HOST_OS
-onEvent el et cb =
+onEvent el'@(Elem el) et cb =
   do js_addEventListener el e cb
-     return $ removeEvent el e cb
+     return $ removeEvent el' e cb
   where
     e = pack (eventName et)
 
-onEvent' el et hnd =
+onEvent' (Elem el) et hnd =
   do cb <- asyncCallback1 hnd
      js_addEventListener el e cb
   where
     e = pack (eventName et)
 
-removeEvent el et cb = js_removeEventListener el (pack (eventName et)) cb
+removeEvent (Elem el) et cb = js_removeEventListener el (pack (eventName et)) cb
 #else
 onEvent = notImplemented
 onEvent' = notImplemented
