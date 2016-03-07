@@ -27,5 +27,5 @@ module GHCJS.Perch
   where
 
 import           Internal.API
-import           Internal.Perch
+import           Internal.Perch hiding (withPerch, withPerchBuild)
 import           Internal.Type

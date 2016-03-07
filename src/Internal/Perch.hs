@@ -97,10 +97,7 @@ instance Show a => ToElem a where
 -- * DOM Tree Building
 
 attr :: forall a. PerchM a -> (PropId, JSString) -> PerchM a
-attr t (n, v) = Perch $ \x ->
-  do tag <- build t x
-     setAttr tag n v
-     return tag
+attr tag (n, v) = Perch $ withPerchBuild tag (\t -> setAttr t n v)
 
 nelem :: JSString -> Perch
 nelem s = Perch $ \x ->
@@ -114,43 +111,31 @@ child :: ToElem a
       => Perch -- ^ parent
       -> a     -- ^ child
       -> Perch
-child me ch = Perch $ \x ->
-  do e <- build me x
-     build (toElem ch) e
-     return e
+child me ch = Perch . withPerchBuild me $ build (toElem ch)
 
 setHtml :: Perch -> JSString -> Perch
-setHtml me text = Perch $ \x ->
-  do e <- build me x
-     setInnerHTML e text
-     return x
+setHtml me text = Perch . withPerchBuild me $ flip setInnerHTML text
 
 -- | Build perch and attach an event handler to its element.
 --
 -- Event handler should be an IO action wrapped by GHCJS' 'Callback' taking one
 -- argument, that is an actual JavaScript event object baked in @JSVal@.
 addEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
-addEvent be event action = Perch $ \x ->
-  do e <- build be x
-     onEvent e event action
-     return e
+addEvent pe event action = Perch . withPerchBuild pe $ \e ->
+  onEvent e event action
 
 -- | Build perch and attach an event handler to its element.  Use this function
 -- only when you are sure that you won't detach handler during application run.
 addEvent' :: (NamedEvent e) => Perch -> e -> (JSVal -> IO ()) -> Perch
-addEvent' be event action = Perch $ \x ->
-  do e <- build be x
-     onEvent' e event action
-     return e
+addEvent' pe event action = Perch . withPerchBuild pe $ \e ->
+  onEvent' e event action
 
 -- | Build perch and remove an event handler from it.
 --
 -- Note, you still have to release callback manually.
 remEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
-remEvent be event action = Perch $ \x ->
-  do e <- build be x
-     removeEvent e event action
-     return e
+remEvent pe event action = Perch . withPerchBuild pe $ \e ->
+  removeEvent e event action
 
 -- ** Leaf DOM Nodes
 area, base, br, col, embed, hr, img, input, keygen, link, menuitem :: Perch
@@ -305,15 +290,14 @@ width  = atr "width"
 
 -- | Return the current node.
 this :: Perch
-this = Perch $ \e -> return e
+this = Perch return
 
 -- | Goes to the parent node of the first and execute the second.
 goParent :: Perch -> Perch -> Perch
 goParent ch pe = Perch $ \e ->
   do fs <- build ch e
      pr <- parent fs
-     sn <- build pe pr
-     return sn
+     build pe pr
 
 -- ** Manipulation
 
@@ -326,9 +310,7 @@ delete = Perch $ \e ->
 
 -- | Delete all children of the current node.
 clear :: Perch
-clear = Perch $ \e ->
-  do clearChildren e
-     return e
+clear = Perch . withPerch $ clearChildren
 
 -- | Replace the current node with a new one
 outer ::  Perch -> Perch -> Perch
@@ -341,10 +323,9 @@ outer olde newe = Perch $ \e ->
 -- | JQuery-like DOM manipulation.  It applies the Perch DOM manipulation for
 -- each found element using @querySelectorAll@ function.
 forElems :: JSString -> Perch -> Perch
-forElems query action = Perch $ \e ->
+forElems query action = Perch . withPerch . const $
   do els <- queryAll query
      mapM_ (build action) els
-     return e
 
 -- | Like 'forElems', but works in IO monad.
 -- Example:
@@ -406,3 +387,9 @@ withElemId_ = flip forElemId_
 
 withPerch :: (Elem -> IO a) -> Elem -> IO Elem
 withPerch act e = act e >> return e
+
+withPerchBuild :: PerchM a -> (Elem -> IO b) -> Elem -> IO Elem
+withPerchBuild p act e =
+  do x <- build p e
+     act x
+     return x
