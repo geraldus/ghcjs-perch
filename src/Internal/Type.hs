@@ -6,7 +6,6 @@
 module Internal.Type
   ( Elem
   , PropId
-  , PropID
   , Attribute
   , NamedEvent (..)
   , JsEvent (..)
@@ -32,14 +31,11 @@ newtype Elem = Elem JSVal
 
 type PropId = JSString
 
-type PropID = PropId
-
 type Attribute = (JSString, JSString)
 
 
 class NamedEvent a where
   eventName :: a -> String
-
 
 data JsEvent = Blur
              | Change
@@ -58,6 +54,7 @@ data JsEvent = Blur
              | Submit
              | Unload
              | Wheel
+
 
 #ifdef ghcjs_HOST_OS
 instance FromJSVal Elem where
