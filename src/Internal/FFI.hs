@@ -26,6 +26,12 @@ foreign import javascript unsafe "document.createElement($1)"
 
 foreign import javascript unsafe "document.createTextNode($1)"
   js_createTextNode :: JSString -> IO Elem
+-- | Check if object is an HTML Element of current DOM.  Works with HTML
+-- elements and text nodes.
+-- http://stackoverflow.com/a/20476546/1749901
+foreign import javascript unsafe
+  "$1 !== null && !(!$1.ownerDocument) && (window === ($1.ownerDocument.defaultView || $1.ownerDocument.parentWindow))"
+  js_isInCurrentDOM :: JSVal -> IO Bool
 
 
 foreign import javascript unsafe "$1.parentNode()"

@@ -13,9 +13,9 @@ module Internal.Type
 
 #ifdef ghcjs_HOST_OS
 import           Data.JSString
-import           GHCJS.Foreign (isNull, isUndefined)
 import           GHCJS.Marshal (FromJSVal (..), ToJSVal (..))
 import           GHCJS.Types   (JSVal)
+import           Internal.FFI  (js_isInCurrentDOM)
 #endif
 --------------------------------------------------------------------------------
 
@@ -58,9 +58,12 @@ data JsEvent = Blur
 
 #ifdef ghcjs_HOST_OS
 instance FromJSVal Elem where
-  fromJSVal v = return (if isUndefined v || isNull v
-                           then Nothing
-                           else Just (Elem v))
+  fromJSVal v =
+    do isElem <- js_isInCurrentDOM v
+       return $
+         if isElem
+         then Nothing
+         else Just (Elem v)
 
 instance ToJSVal Elem where
   toJSVal (Elem val) = return val
