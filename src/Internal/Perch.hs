@@ -79,10 +79,10 @@ instance ToElem a => Attributable (a -> Perch) where
 
 
 instance ToElem JSString where
-  toElem s = Perch $ \e ->
-    do e' <- newTextElem s
-       addChild e' e
-       return e'
+  toElem s = Perch $ \x ->
+    do e <- newTextElem s
+       addChild e x
+       return e
 
 #ifdef ghcjs_HOST_OS
 instance ToElem String where
@@ -98,16 +98,16 @@ instance Show a => ToElem a where
 -- * DOM Tree Building
 
 attr :: forall a. PerchM a -> (PropId, JSString) -> PerchM a
-attr tag (n, v) = Perch $ \e ->
-  do tag' <- build tag e
-     setAttr tag' n v
-     return tag'
+attr t (n, v) = Perch $ \x ->
+  do tag <- build t x
+     setAttr tag n v
+     return tag
 
 nelem :: JSString -> Perch
-nelem s = Perch $ \e ->
-  do e' <- newElem s
-     addChild e' e
-     return e'
+nelem s = Perch $ \x ->
+  do e <- newElem s
+     addChild e x
+     return e
 
 -- | Build an element as child of another one.  Child element becomes new
 -- continuation for monadic expression.
@@ -115,41 +115,41 @@ child :: ToElem a
       => Perch -- ^ parent
       -> a     -- ^ child
       -> Perch
-child me ch = Perch $ \e' ->
-  do e <- build me e'
+child me ch = Perch $ \x ->
+  do e <- build me x
      build (toElem ch) e
      return e
 
 setHtml :: Perch -> JSString -> Perch
-setHtml me text = Perch $ \e' ->
-  do e <- build me e'
+setHtml me text = Perch $ \x ->
+  do e <- build me x
      setInnerHTML e text
-     return e'
+     return x
 
 -- | Build perch and attach an event handler to its element.
 --
 -- Event handler should be an IO action wrapped by GHCJS' 'Callback' taking one
 -- argument, that is an actual JavaScript event object baked in @JSVal@.
 addEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
-addEvent be event action = Perch $ \e ->
-  do e' <- build be e
-     onEvent e' event action
-     return e'
+addEvent be event action = Perch $ \x ->
+  do e <- build be x
+     onEvent e event action
+     return e
 
 -- | Build perch and attach an event handler to its element.  Use this function
 -- only when you are sure that you won't detach handler during application run.
 addEvent' :: (NamedEvent e) => Perch -> e -> (JSVal -> IO ()) -> Perch
-addEvent' be event action = Perch $ \e ->
-  do e' <- build be e
-     onEvent' e' event action
-     return e'
+addEvent' be event action = Perch $ \x ->
+  do e <- build be x
+     onEvent' e event action
+     return e
 
 -- | Build perch and remove an event handler from it.
 --
 -- Note, you still have to release callback manually.
 remEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
-remEvent be event action = Perch $ \e' ->
-  do e <- build be e'
+remEvent be event action = Perch $ \x ->
+  do e <- build be x
      removeEvent e event action
      return e
 
