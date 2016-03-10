@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP                  #-}
-
 {-# LANGUAGE DeriveDataTypeable   #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverlappingInstances #-}
@@ -14,6 +13,7 @@ import           Internal.Type
 
 #ifdef ghcjs_HOST_OS
 import           Data.JSString          (JSString, pack)
+import           GHCJS.Foreign.Callback (Callback)
 import           GHCJS.Types            (JSVal)
 #endif
 
@@ -47,10 +47,9 @@ class Attributable h where
 
 --------------------------------------------------------------------------------
 instance Monoid (PerchM a) where
-  mappend mx my = Perch $ \e ->
+  mappend mx my = Perch . withPerch $ \e ->
     do build mx e
        build my e
-       return e
   mempty = Perch return
 
 instance Functor PerchM
@@ -63,7 +62,7 @@ instance Monad PerchM where
   return = mempty
 
 instance MonadIO PerchM where
-  liftIO io = Perch $ \e -> io >> return e
+  liftIO io = Perch . withPerch $ const io
 
 instance ToElem (PerchM a) where
   toElem = unsafeCoerce
@@ -79,10 +78,10 @@ instance ToElem a => Attributable (a -> Perch) where
 
 
 instance ToElem JSString where
-  toElem s = Perch $ \e ->
-    do e' <- newTextElem s
-       addChild e' e
-       return e'
+  toElem s = Perch $ \x ->
+    do e <- newTextElem s
+       addChild e x
+       return e
 
 #ifdef ghcjs_HOST_OS
 instance ToElem String where
@@ -95,17 +94,16 @@ instance Show a => ToElem a where
 
 
 --------------------------------------------------------------------------------
+-- * DOM Tree Building
+
 attr :: forall a. PerchM a -> (PropId, JSString) -> PerchM a
-attr tag (n, v) = Perch $ \e ->
-  do tag' <- build tag e
-     setAttr tag' n v
-     return tag'
+attr tag (n, v) = Perch $ withPerchBuild tag (\t -> setAttr t n v)
 
 nelem :: JSString -> Perch
-nelem s = Perch $ \e ->
-  do e' <- newElem s
-     addChild e' e
-     return e'
+nelem s = Perch $ \x ->
+  do e <- newElem s
+     addChild e x
+     return e
 
 -- | Build an element as child of another one.  Child element becomes new
 -- continuation for monadic expression.
@@ -113,27 +111,33 @@ child :: ToElem a
       => Perch -- ^ parent
       -> a     -- ^ child
       -> Perch
-child me ch = Perch $ \e' ->
-  do e <- build me e'
-     build (toElem ch) e
-     return e
+child me ch = Perch . withPerchBuild me $ build (toElem ch)
 
 setHtml :: Perch -> JSString -> Perch
-setHtml me text = Perch $ \e' ->
-  do e <- build me e'
-     inner e text
-     return e'
+setHtml me text = Perch . withPerchBuild me $ flip setInnerHTML text
 
--- | Build an element and add an event handler to it.
--- Event handler should be an IO action taking one argument of type @JSRef a@,
--- that is an actual event object catched by JavsScript.
-addEvent :: (NamedEvent a) => Perch -> a -> (JSVal -> IO ()) -> Perch
-addEvent be event action = Perch $ \e ->
-  do e' <- build be e
-     onEvent e' (eventName event) action
-     return e'
+-- | Build perch and attach an event handler to its element.
+--
+-- Event handler should be an IO action wrapped by GHCJS' 'Callback' taking one
+-- argument, that is an actual JavaScript event object baked in @JSVal@.
+addEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
+addEvent pe event action = Perch . withPerchBuild pe $ \e ->
+  onEvent e event action
 
--- * Leaf DOM Nodes
+-- | Build perch and attach an event handler to its element.  Use this function
+-- only when you are sure that you won't detach handler during application run.
+addEvent' :: (NamedEvent e) => Perch -> e -> (JSVal -> IO ()) -> Perch
+addEvent' pe event action = Perch . withPerchBuild pe $ \e ->
+  onEvent' e event action
+
+-- | Build perch and remove an event handler from it.
+--
+-- Note, you still have to release callback manually.
+remEvent :: (NamedEvent e) => Perch -> e -> Callback (JSVal -> IO ()) -> Perch
+remEvent pe event action = Perch . withPerchBuild pe $ \e ->
+  removeEvent e event action
+
+-- ** Leaf DOM Nodes
 area, base, br, col, embed, hr, img, input, keygen, link, menuitem :: Perch
 meta, param, source, track, wbr :: Perch
 
@@ -154,7 +158,7 @@ source   = nelem "source"
 track    = nelem "track"
 wbr      = nelem "wbr"
 
--- * Parent DOM Nodes
+-- ** Parent DOM Nodes
 
 a, abbr, address, article, aside, audio, b, bdo, blockquote, body, button,
   canvas, caption, center, cite, code, colgroup, command, datalist, dd, del,
@@ -259,14 +263,16 @@ video cont      = nelem "video" `child` cont
 ctag :: (ToElem b) => JSString -> b -> Perch
 ctag tag cont = nelem tag `child` cont
 
--- * HTML4 Support
+-- ** HTML4 Support
 center cont = nelem "center" `child` cont
 
 noHtml :: Perch
 noHtml = mempty
 
 
--- * DOM Attributes
+-- * DOM Tree Navigation & Manipulation
+
+-- ** Attributes
 
 atr :: String -> JSString -> Attribute
 atr n v = (pack n,  v)
@@ -280,20 +286,20 @@ src    = atr "src"
 style  = atr "style"
 width  = atr "width"
 
-
--- * DOM Tree Navigation
+-- ** Traversal
 
 -- | Return the current node.
 this :: Perch
-this = Perch $ \e -> return e
+this = Perch return
 
 -- | Goes to the parent node of the first and execute the second.
 goParent :: Perch -> Perch -> Perch
 goParent ch pe = Perch $ \e ->
   do fs <- build ch e
      pr <- parent fs
-     sn <- build pe pr
-     return sn
+     build pe pr
+
+-- ** Manipulation
 
 -- | Delete the current node and return the parent.
 delete :: Perch
@@ -304,9 +310,7 @@ delete = Perch $ \e ->
 
 -- | Delete all children of the current node.
 clear :: Perch
-clear = Perch $ \e ->
-  do clearChildren e
-     return e
+clear = Perch . withPerch $ clearChildren
 
 -- | Replace the current node with a new one
 outer ::  Perch -> Perch -> Perch
@@ -319,35 +323,73 @@ outer olde newe = Perch $ \e ->
 -- | JQuery-like DOM manipulation.  It applies the Perch DOM manipulation for
 -- each found element using @querySelectorAll@ function.
 forElems :: JSString -> Perch -> Perch
-forElems query action = Perch $ \e ->
+forElems query action = Perch . withPerch . const $
   do els <- queryAll query
      mapM_ (build action) els
-     return e
 
--- | A bit more declarative synmonym of 'forElems'.
-withElems :: JSString -> Perch -> Perch
-withElems = forElems
-
--- | Like forElems, but discards final result.
+-- | Like 'forElems', but works in IO monad.
 -- Example:
 --
 -- @
+-- import GHCJS.Foreign.Callback (asyncCallback1)
+--
 -- main = do
 --   body <- getBody
---   (flip build) body . pre $ do
---      div ! atr "class" "modify" $ "click"
---      div "not changed"
---      div ! atr "class" "modify" $ "here"
---      addEvent this Click $ \_ _ -> do
---        forElems' ".modify" $
---          this ! style "color:red"
+--   makeRed \<- asyncCallback1 (\\ _ -\> do
+--     forElems_ ".changeable" $
+--       this ! style "color:red")
+--   (flip build) body . div $ do
+--      div ! atr "class" "changeable" $ \"Changeable\"
+--      div \"Static\"
+--      div ! atr "class" "changeable" $ \"Changeable\"
+--      addEvent this Click makeRed
 -- @
 forElems_ :: JSString -> Perch -> IO ()
-forElems_ els doIt =
-  do build (forElems els doIt) undefined
+forElems_ els action =
+  do build (forElems els action) undefined
      return ()
 
-forElems', withElems_, withElems' :: JSString -> Perch -> IO ()
-forElems' = forElems_
-withElems_ = forElems_
-withElems' = forElems_
+-- | Decalarative synonym for @flip forElems@.
+--
+-- Examples:
+--
+-- @
+-- doAction \``withElems`\` ".item"
+-- `forElems` ".item" doAction
+-- @
+withElems ::  Perch -> JSString -> Perch
+withElems = flip forElems
+
+-- | A declarative synonym of @flip forElements@.
+withElems_ :: Perch -> JSString -> IO ()
+withElems_ = flip forElems_
+
+-- | Apply action to perch with given identifier.
+forElemId :: JSString -> Perch -> Perch
+forElemId eid act = Perch . withPerch . const $
+  do el <- getElemById eid
+     build act el
+
+-- | IO version of 'forElemId_'.
+forElemId_ :: JSString -> Perch -> IO ()
+forElemId_ act eid =
+  do flip build undefined (forElemId act eid)
+     return ()
+
+-- | A synonym to @flip forElemId@.
+withElemId :: Perch -> JSString -> Perch
+withElemId = flip forElemId
+
+-- | A synonym to @flip forElemId_@.
+withElemId_ :: Perch -> JSString -> IO ()
+withElemId_ = flip forElemId_
+
+
+withPerch :: (Elem -> IO a) -> Elem -> IO Elem
+withPerch act e = act e >> return e
+
+withPerchBuild :: PerchM a -> (Elem -> IO b) -> Elem -> IO Elem
+withPerchBuild p act e =
+  do x <- build p e
+     act x
+     return x

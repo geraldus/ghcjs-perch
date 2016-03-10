@@ -17,11 +17,15 @@ module GHCJS.Perch
   ( -- * Perch DOM Builder
     module Internal.Perch
     -- * Types
-  , module Internal.Type
+  , Elem
+  , PropId
+  , Attribute
+  , NamedEvent (..)
+  , JsEvent (..)
     -- * Internal API
   , module Internal.API )
   where
 
 import           Internal.API
-import           Internal.Perch
+import           Internal.Perch hiding (withPerch, withPerchBuild)
 import           Internal.Type

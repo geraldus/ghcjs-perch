@@ -3,20 +3,13 @@
 {-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Internal.Type
-  ( Elem
-  , PropId
-  , PropID
-  , Attribute
-  , NamedEvent (..)
-  , JsEvent (..)
-  ) where
+module Internal.Type where
 
 #ifdef ghcjs_HOST_OS
 import           Data.JSString
-import           GHCJS.Foreign (isNull, isUndefined)
 import           GHCJS.Marshal (FromJSVal (..), ToJSVal (..))
 import           GHCJS.Types   (JSVal)
+import           Internal.FFI  (js_isInCurrentDOM)
 #endif
 --------------------------------------------------------------------------------
 
@@ -32,14 +25,11 @@ newtype Elem = Elem JSVal
 
 type PropId = JSString
 
-type PropID = PropId
-
 type Attribute = (JSString, JSString)
 
 
 class NamedEvent a where
   eventName :: a -> String
-
 
 data JsEvent = Blur
              | Change
@@ -59,11 +49,15 @@ data JsEvent = Blur
              | Unload
              | Wheel
 
+
 #ifdef ghcjs_HOST_OS
 instance FromJSVal Elem where
-  fromJSVal v = return (if isUndefined v || isNull v
-                           then Nothing
-                           else Just (Elem v))
+  fromJSVal v =
+    do isElem <- js_isInCurrentDOM v
+       return $
+         if isElem
+         then Just (Elem v)
+         else Nothing
 
 instance ToJSVal Elem where
   toJSVal (Elem val) = return val
