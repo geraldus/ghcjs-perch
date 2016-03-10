@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 module Internal.Type
@@ -37,7 +36,7 @@ type PropID = PropId
 type Attribute = (JSString, JSString)
 
 
-class NamedEvent a where
+class  NamedEvent a where
   eventName :: a -> String
 
 
@@ -71,14 +70,14 @@ instance ToJSVal Elem where
 #endif
 
 #ifdef ghcjs_HOST_OS
-instance NamedEvent String where
+instance {-# OVERLAPPING #-}  NamedEvent String where
   eventName = Prelude.id
 #endif
 
-instance Show a => NamedEvent a where
+instance  {-# OVERLAPPABLE #-} Show a => NamedEvent a where
   eventName = eventName . show
 
-instance NamedEvent JSString where
+instance {-# OVERLAPPING #-} NamedEvent JSString where
   eventName x = eventName ((unpack x) :: String)
 
 instance Show JsEvent where

@@ -2,7 +2,6 @@
 
 {-# LANGUAGE DeriveDataTypeable   #-}
 {-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE RankNTypes           #-}
 {-# LANGUAGE TypeSynonymInstances #-}
@@ -76,22 +75,22 @@ instance IsString Perch where
 instance Attributable Perch where
  (!) pe (aname, aval) = pe `attr` (aname,  aval)
 
-instance ToElem a => Attributable (a -> Perch) where
+instance  ToElem a => Attributable (a -> Perch) where
  (!) pe (aname, aval) = \e -> pe e `attr` (aname,  aval)
 
 
-instance ToElem JSString where
+instance {-# OVERLAPPING #-} ToElem JSString where
   toElem s = Perch $ \e ->
     do e' <- newTextElem s
        addChild e' e
        return e'
 
 #ifdef ghcjs_HOST_OS
-instance ToElem String where
+instance {-# OVERLAPPING #-} ToElem String where
   toElem = toElem . pack
 #endif
 
-instance Show a => ToElem a where
+instance {-# OVERLAPPABLE #-} Show a => ToElem a where
   toElem = toElem . show
 --------------------------------------------------------------------------------
 
