@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP                  #-}
 {-# LANGUAGE DeriveDataTypeable   #-}
 {-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE RankNTypes           #-}
 {-# LANGUAGE TypeSynonymInstances #-}
@@ -77,6 +76,9 @@ instance ToElem a => Attributable (a -> Perch) where
  (!) pe (aname, aval) = \e -> pe e `attr` (aname,  aval)
 
 
+instance {-# OVERLAPPABLE #-} Show a => ToElem a where
+  toElem = toElem . show
+
 instance ToElem JSString where
   toElem s = Perch $ \x ->
     do e <- newTextElem s
@@ -87,9 +89,6 @@ instance ToElem JSString where
 instance ToElem String where
   toElem = toElem . pack
 #endif
-
-instance Show a => ToElem a where
-  toElem = toElem . show
 --------------------------------------------------------------------------------
 
 
