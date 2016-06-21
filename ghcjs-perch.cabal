@@ -7,8 +7,9 @@ version:             0.3.1
 
 synopsis:            GHCJS version of Perch library.
 
--- A longer description of the package.
--- description:
+description:         This package makes the creation of DOM elements easy
+                     with a syntax similar to other Haskell HTML generators
+                     such as `blaze-html`, using monoids and monads.
 
 license:             MIT
 
