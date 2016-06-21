@@ -44,8 +44,8 @@ library
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
-                       transformers >= 0.4.2.0 && < 0.5
   build-depends:       base         >= 4.7     && < 5
+                     , transformers >= 0.4.2.0
 
   hs-source-dirs:      src
 
