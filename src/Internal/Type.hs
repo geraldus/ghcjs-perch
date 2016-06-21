@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP                  #-}
 {-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 module Internal.Type where
@@ -68,7 +67,7 @@ instance NamedEvent String where
   eventName = Prelude.id
 #endif
 
-instance Show a => NamedEvent a where
+instance {-# OVERLAPPABLE #-} Show a => NamedEvent a where
   eventName = eventName . show
 
 instance NamedEvent JSString where
