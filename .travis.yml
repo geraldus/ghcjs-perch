@@ -58,11 +58,19 @@ matrix:
     compiler: ": #stack GHCJS-7.10.3"
     addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
 
+  - env: BUILD=stack ARGS="--resolver lts-6"
+    compiler: ": #stack GHCJS-7.10.3"
+    addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
+
   - env: BUILD=stack ARGS="--resolver lts-3 --compiler=ghc-7.10.3"
     compiler: ": #stack GHC-7.10.3"
     addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
 
   - env: BUILD=stack ARGS="--resolver lts-5 --compiler=ghc-7.10.3"
+    compiler: ": #stack GHC-7.10.3"
+    addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
+
+  - env: BUILD=stack ARGS="--resolver lts-6 --compiler=ghc-7.10.3"
     compiler: ": #stack GHC-7.10.3"
     addons: {apt: {packages: [ghc-7.10.3], sources: [hvr-ghc]}}
 
