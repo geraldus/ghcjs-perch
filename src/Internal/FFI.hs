@@ -39,7 +39,7 @@ foreign import javascript unsafe
   js_isInCurrentDOM :: JSVal -> IO Bool
 
 
-foreign import javascript unsafe "$1.parentNode()"
+foreign import javascript unsafe "$1.parentNode"
   js_parentNode :: JSVal -> IO JSVal
 
 foreign import javascript unsafe "$1.appendChild($2)"
