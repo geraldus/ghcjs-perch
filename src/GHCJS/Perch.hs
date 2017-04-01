@@ -3,7 +3,7 @@ Module      : GHCJS.Perch
 Description : Monadic DOM builder
 Copyright   : (c) Athur S. Fayzrakhmanov, 2015
                   Alberto G. Corona, 2015
-License     : GPL-3
+License     : MIT
 Maintainer  : heraldhoi@gmail.com
 Stability   : experimental
 Portability : Any
