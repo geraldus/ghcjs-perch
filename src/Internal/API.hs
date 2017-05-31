@@ -42,6 +42,13 @@ newElem = (Elem <$>) . js_documentCreateNode
 newElem = notImplemented
 #endif
 
+newElemNS :: JSString -> JSString -> IO Elem
+#ifdef ghcjs_HOST_OS
+newElemNS ns e  = Elem <$> js_documentCreateNodeNS ns e
+#else
+newElemNS = notImplemented
+#endif
+
 newTextElem :: JSString -> IO Elem
 #ifdef ghcjs_HOST_OS
 newTextElem = (Elem <$>) . js_createTextNode
