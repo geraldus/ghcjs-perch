@@ -98,9 +98,17 @@ instance ToElem String where
 attr :: forall a. PerchM a -> (PropId, JSString) -> PerchM a
 attr tag (n, v) = Perch $ withPerchBuild tag (\t -> setAttr t n v)
 
+-- | Create a new elemet
 nelem :: JSString -> Perch
 nelem s = Perch $ \x ->
   do e <- newElem s
+     addChild e x
+     return e
+     
+-- | Create a new element with a namespace`
+nelemNS :: JSString -> JSString -> Perch
+nelemNS ns s=  Perch $ \x ->
+  do e <- newElemNS ns s
      addChild e x
      return e
 
