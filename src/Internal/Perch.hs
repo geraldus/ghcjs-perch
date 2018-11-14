@@ -46,10 +46,22 @@ class Attributable h where
 
 --------------------------------------------------------------------------------
 instance Monoid (PerchM a) where
-  mappend mx my = Perch . withPerch $ \e ->
+  mempty = Perch return
+  
+#if MIN_VERSION_base(4,11,0) 
+  mappend  = (<>) 
+
+instance  Semigroup (PerchM a) where
+  (<>)=  mappendt
+
+#else
+  mappend= mappendt
+#endif
+
+mappendt mx my = Perch . withPerch $ \e ->
     do build mx e
        build my e
-  mempty = Perch return
+
 
 instance Functor PerchM
 

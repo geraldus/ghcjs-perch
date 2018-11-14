@@ -28,6 +28,9 @@ foreign import javascript unsafe "document.querySelectorAll($1)"
 foreign import javascript unsafe "document.createElement($1)"
   js_documentCreateNode :: JSString -> IO JSVal
 
+foreign import javascript unsafe "document.createElementNS($1,$2)"
+  js_documentCreateNodeNS ::  JSString -> JSString -> IO JSVal
+
 foreign import javascript unsafe "document.createTextNode($1)"
   js_createTextNode :: JSString -> IO JSVal
 
